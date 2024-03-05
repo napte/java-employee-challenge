@@ -34,26 +34,7 @@ public class DummyEmployeeApiClient {
       ResponseEntity<String> employeesListResponse = restTemplate
           .getForEntity("https://dummy.restapiexample.com/api/v1/employees", String.class);
 
-      if (employeesListResponse.getStatusCode().is2xxSuccessful()) {
-        EmployeesListResponseDto employeesListResponseDto =
-            objectMapper.readValue(employeesListResponse.getBody(), EmployeesListResponseDto.class);
-
-        if (employeesListResponseDto.getStatus().equals(Constants.STATUS_SUCCESS)) {
-          logger.info("Fetched details of {} employees", employeesListResponseDto.getData().size());
-          List<Employee> result = employeesListResponseDto
-              .getData()
-              .stream()
-              .map(empDto -> getEmployee(empDto))
-              .collect(toList());
-          return result;
-        } else {
-          logger
-              .error("Dummy API returned status {} - ", employeesListResponseDto.getStatus(),
-                  employeesListResponseDto.getMessage());
-          throw new EmployeeServiceException(HttpStatus.INTERNAL_SERVER_ERROR,
-              ErrorCodes.DUMMY_API_SERVER_ERROR.getCode(), employeesListResponseDto.getMessage());
-        }
-      } else {
+      if (!employeesListResponse.getStatusCode().is2xxSuccessful()) {
         logger.error("Failure in Dummy API, status {}", employeesListResponse.getStatusCode());
         throw new EmployeeServiceException(employeesListResponse.getStatusCode(),
             employeesListResponse.getStatusCode().is4xxClientError()
@@ -61,6 +42,25 @@ public class DummyEmployeeApiClient {
                 : ErrorCodes.DUMMY_API_SERVER_ERROR.getCode(),
             employeesListResponse.getBody());
       }
+
+      EmployeesListResponseDto employeesListResponseDto =
+          objectMapper.readValue(employeesListResponse.getBody(), EmployeesListResponseDto.class);
+
+      if (!employeesListResponseDto.getStatus().equals(Constants.STATUS_SUCCESS)) {
+        logger
+            .error("Dummy API returned status {} - ", employeesListResponseDto.getStatus(),
+                employeesListResponseDto.getMessage());
+        throw new EmployeeServiceException(HttpStatus.INTERNAL_SERVER_ERROR,
+            ErrorCodes.DUMMY_API_SERVER_ERROR.getCode(), employeesListResponseDto.getMessage());
+      }
+
+      logger.info("Fetched details of {} employees", employeesListResponseDto.getData().size());
+      List<Employee> result = employeesListResponseDto
+          .getData()
+          .stream()
+          .map(empDto -> getEmployee(empDto))
+          .collect(toList());
+      return result;
     } catch (RestClientException e) {
       logger.error("Unexpected exception in Dummy API", e);
       throw new EmployeeServiceException(HttpStatus.INTERNAL_SERVER_ERROR,
