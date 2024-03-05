@@ -1,4 +1,4 @@
-package com.example.rqchallenge.employees.model;
+package com.example.rqchallenge.model;
 
 import java.util.Objects;
 

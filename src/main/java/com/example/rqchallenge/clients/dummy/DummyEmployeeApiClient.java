@@ -13,9 +13,9 @@ import org.springframework.web.client.RestTemplate;
 import com.example.rqchallenge.clients.dummy.dto.Constants;
 import com.example.rqchallenge.clients.dummy.dto.EmployeeDto;
 import com.example.rqchallenge.clients.dummy.dto.EmployeesListResponseDto;
-import com.example.rqchallenge.employees.model.Employee;
 import com.example.rqchallenge.errorhandling.EmployeeServiceException;
 import com.example.rqchallenge.errorhandling.ErrorCodes;
+import com.example.rqchallenge.model.Employee;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
