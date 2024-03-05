@@ -7,8 +7,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.HttpClientErrorException.TooManyRequests;
+import org.springframework.web.client.HttpServerErrorException.GatewayTimeout;
 import org.springframework.web.client.RestTemplate;
 import com.example.rqchallenge.clients.dummy.dto.Constants;
 import com.example.rqchallenge.clients.dummy.dto.EmployeeDto;
@@ -29,8 +32,11 @@ public class DummyEmployeeApiClient {
   @Autowired
   private ObjectMapper objectMapper;
 
+  @Retryable(value = {TooManyRequests.class, GatewayTimeout.class},
+      backoff = @Backoff(delay = 1000, multiplier = 2))
   public List<Employee> getAllEmployees() {
     try {
+      logger.info("Fetching employees..");
       ResponseEntity<String> employeesListResponse = restTemplate
           .getForEntity("https://dummy.restapiexample.com/api/v1/employees", String.class);
 
@@ -61,10 +67,6 @@ public class DummyEmployeeApiClient {
           .map(empDto -> getEmployee(empDto))
           .collect(toList());
       return result;
-    } catch (RestClientException e) {
-      logger.error("Unexpected exception in Dummy API", e);
-      throw new EmployeeServiceException(HttpStatus.INTERNAL_SERVER_ERROR,
-          ErrorCodes.DUMMY_API_SERVER_ERROR.getCode(), e.getMessage());
     } catch (JsonProcessingException e) {
       logger.error("Error processing response from Dummy API", e);
       throw new EmployeeServiceException(HttpStatus.INTERNAL_SERVER_ERROR,
