@@ -1,5 +1,6 @@
 package com.example.rqchallenge.controller;
 
+import static java.util.stream.Collectors.toList;
 import java.io.IOException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +36,9 @@ public class EmployeeController implements IEmployeeController {
 
   @Override
   public ResponseEntity<List<String>> getTopTenHighestEarningEmployeeNames() {
-    // TODO Auto-generated method stub
-    return null;
+    List<Employee> topNEmployees = employeeService.getTopNBySalary(10);
+    List<String> employeeNames = topNEmployees.stream().map(Employee::getName).collect(toList());
+    return ResponseEntity.ok(employeeNames);
   }
 
   @Override

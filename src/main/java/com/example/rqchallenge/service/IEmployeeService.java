@@ -15,4 +15,6 @@ public interface IEmployeeService {
   List<Employee> getEmployeesByName(String searchString);
 
   Integer getHighestSalary();
+
+  List<Employee> getTopNBySalary(int count);
 }

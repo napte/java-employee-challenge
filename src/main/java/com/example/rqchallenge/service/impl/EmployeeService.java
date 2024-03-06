@@ -1,5 +1,6 @@
 package com.example.rqchallenge.service.impl;
 
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 import java.util.Comparator;
 import java.util.List;
@@ -72,6 +73,21 @@ public class EmployeeService implements IEmployeeService {
 
     logger.info("Max salary = {}", maxSalary);
     return maxSalary;
+  }
+
+  @Override
+  public List<Employee> getTopNBySalary(int count) {
+    logger.info("Get top {} employees by salary", count);
+    List<Employee> employeesList = employeeApiClient.getAllEmployees();
+
+    List<Employee> topN = employeesList
+        .stream()
+        .sorted(comparing(Employee::getSalary).reversed())
+        .limit(count)
+        .collect(toList());
+
+    logger.info("Fetched list of {} employees ordered by salary", topN.size());
+    return topN;
   }
 
 }

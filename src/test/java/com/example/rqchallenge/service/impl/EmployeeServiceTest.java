@@ -132,4 +132,57 @@ public class EmployeeServiceTest {
     assertEquals(ErrorCodes.EMPLOYEES_LIST_EMPTY.getCode(), exception.getCode());
   }
 
+  @Test
+  void testGetTopNBySalary() {
+    Employee jon = new Employee();
+    jon.setName("Jon");
+    jon.setSalary(25000);
+
+    Employee jonny = new Employee();
+    jonny.setName("Jonny");
+    jonny.setSalary(15000);
+
+    Employee janardan = new Employee();
+    janardan.setName("Janardan");
+    janardan.setSalary(35000);
+
+    Employee joanna = new Employee();
+    joanna.setName("Joanna");
+    joanna.setSalary(28000);
+
+    List<Employee> employees = List.of(jon, jonny, janardan, joanna);
+    when(mockDummyEmployeeApiClient.getAllEmployees()).thenReturn(employees);
+
+    List<Employee> topNEmployees = employeeService.getTopNBySalary(2);
+    assertEquals(2, topNEmployees.size());
+    assertEquals("Janardan", topNEmployees.get(0).getName());
+    assertEquals("Joanna", topNEmployees.get(1).getName());
+  }
+
+  @Test
+  void testGetTopNBySalaryLargeN() {
+    Employee jon = new Employee();
+    jon.setName("Jon");
+    jon.setSalary(25000);
+
+    Employee jonny = new Employee();
+    jonny.setName("Jonny");
+    jonny.setSalary(15000);
+
+    Employee janardan = new Employee();
+    janardan.setName("Janardan");
+    janardan.setSalary(35000);
+
+    Employee joanna = new Employee();
+    joanna.setName("Joanna");
+    joanna.setSalary(28000);
+
+    List<Employee> employees = List.of(jon, jonny, janardan, joanna);
+    when(mockDummyEmployeeApiClient.getAllEmployees()).thenReturn(employees);
+
+    List<Employee> topNEmployees = employeeService.getTopNBySalary(10);
+    assertEquals(4, topNEmployees.size());
+    assertEquals("Janardan", topNEmployees.get(0).getName());
+  }
+
 }
