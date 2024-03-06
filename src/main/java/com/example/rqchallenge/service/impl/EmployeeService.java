@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import com.example.rqchallenge.clients.dummy.DummyEmployeeApiClient;
+import com.example.rqchallenge.clients.dummyrestapi.DummyEmployeeRestApiClient;
 import com.example.rqchallenge.errorhandling.EmployeeServiceException;
 import com.example.rqchallenge.errorhandling.ErrorCodes;
 import com.example.rqchallenge.model.Employee;
@@ -20,7 +20,7 @@ public class EmployeeService implements IEmployeeService {
   private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
 
   @Autowired
-  private DummyEmployeeApiClient employeeApiClient;
+  private DummyEmployeeRestApiClient employeeApiClient;
 
   @Override
   public List<Employee> getAllEmployees() {

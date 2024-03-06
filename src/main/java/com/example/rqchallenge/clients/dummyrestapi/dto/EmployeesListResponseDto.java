@@ -1,4 +1,4 @@
-package com.example.rqchallenge.clients.dummy.dto;
+package com.example.rqchallenge.clients.dummyrestapi.dto;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.example.rqchallenge.clients.dummy;
+package com.example.rqchallenge.clients.dummyrestapi;
 
 import static java.util.stream.Collectors.toList;
 import java.util.List;
@@ -13,10 +13,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpServerErrorException.GatewayTimeout;
 import org.springframework.web.client.HttpServerErrorException.ServiceUnavailable;
 import org.springframework.web.client.RestTemplate;
-import com.example.rqchallenge.clients.dummy.dto.Constants;
-import com.example.rqchallenge.clients.dummy.dto.EmployeeDetailsResponseDto;
-import com.example.rqchallenge.clients.dummy.dto.EmployeeDto;
-import com.example.rqchallenge.clients.dummy.dto.EmployeesListResponseDto;
+import com.example.rqchallenge.clients.dummyrestapi.dto.Constants;
+import com.example.rqchallenge.clients.dummyrestapi.dto.EmployeeDetailsResponseDto;
+import com.example.rqchallenge.clients.dummyrestapi.dto.EmployeeDto;
+import com.example.rqchallenge.clients.dummyrestapi.dto.EmployeesListResponseDto;
 import com.example.rqchallenge.errorhandling.EmployeeServiceException;
 import com.example.rqchallenge.errorhandling.ErrorCodes;
 import com.example.rqchallenge.model.Employee;
@@ -24,8 +24,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
-public class DummyEmployeeApiClient {
-  private static final Logger logger = LoggerFactory.getLogger(DummyEmployeeApiClient.class);
+public class DummyEmployeeRestApiClient {
+  private static final Logger logger = LoggerFactory.getLogger(DummyEmployeeRestApiClient.class);
 
   static final String BASE_URL = "https://dummy.restapiexample.com/api/v1";
 

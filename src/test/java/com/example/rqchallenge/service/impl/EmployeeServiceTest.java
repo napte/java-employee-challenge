@@ -15,14 +15,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
-import com.example.rqchallenge.clients.dummy.DummyEmployeeApiClient;
+import com.example.rqchallenge.clients.dummyrestapi.DummyEmployeeRestApiClient;
 import com.example.rqchallenge.errorhandling.EmployeeServiceException;
 import com.example.rqchallenge.errorhandling.ErrorCodes;
 import com.example.rqchallenge.model.Employee;
 
 public class EmployeeServiceTest {
   @Mock
-  private DummyEmployeeApiClient mockDummyEmployeeApiClient;
+  private DummyEmployeeRestApiClient mockDummyEmployeeApiClient;
 
   @InjectMocks
   private EmployeeService employeeService;

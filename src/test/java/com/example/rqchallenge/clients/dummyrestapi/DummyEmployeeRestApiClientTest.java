@@ -1,12 +1,12 @@
-package com.example.rqchallenge.clients.dummy;
+package com.example.rqchallenge.clients.dummyrestapi;
 
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -29,10 +29,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpClientErrorException.TooManyRequests;
 import org.springframework.web.client.RestTemplate;
-import com.example.rqchallenge.clients.dummy.dto.Constants;
-import com.example.rqchallenge.clients.dummy.dto.EmployeeDetailsResponseDto;
-import com.example.rqchallenge.clients.dummy.dto.EmployeeDto;
-import com.example.rqchallenge.clients.dummy.dto.EmployeesListResponseDto;
+import com.example.rqchallenge.clients.dummyrestapi.dto.Constants;
+import com.example.rqchallenge.clients.dummyrestapi.dto.EmployeeDetailsResponseDto;
+import com.example.rqchallenge.clients.dummyrestapi.dto.EmployeeDto;
+import com.example.rqchallenge.clients.dummyrestapi.dto.EmployeesListResponseDto;
 import com.example.rqchallenge.errorhandling.EmployeeServiceException;
 import com.example.rqchallenge.errorhandling.ErrorCodes;
 import com.example.rqchallenge.model.Employee;
@@ -40,7 +40,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public class DummyEmployeeApiClientTest {
+public class DummyEmployeeRestApiClientTest {
   private static final long EMP_ID1 = 100;
   private static final long EMP_ID2 = 101;
   private static final String EMP1_NAME = "Bob";
@@ -52,7 +52,7 @@ public class DummyEmployeeApiClientTest {
   private ObjectMapper objectMapper;
 
   @InjectMocks
-  private DummyEmployeeApiClient dummyEmployeeApiClient;
+  private DummyEmployeeRestApiClient dummyEmployeeApiClient;
 
   @BeforeEach
   void setup() {
@@ -61,7 +61,7 @@ public class DummyEmployeeApiClientTest {
 
   @Test
   void testGetAllEmployeesSuccess() throws JsonProcessingException {
-    String url = DummyEmployeeApiClient.BASE_URL + "/employees";
+    String url = DummyEmployeeRestApiClient.BASE_URL + "/employees";
     EmployeesListResponseDto employeesListResponseDto = new EmployeesListResponseDto();
     employeesListResponseDto.setStatus(Constants.STATUS_SUCCESS);
     EmployeeDto emp1 = new EmployeeDto();
@@ -83,7 +83,7 @@ public class DummyEmployeeApiClientTest {
 
   @Test
   void testGetAllEmployeesSuccess2() throws JsonProcessingException {
-    String url = DummyEmployeeApiClient.BASE_URL + "/employees";
+    String url = DummyEmployeeRestApiClient.BASE_URL + "/employees";
     EmployeesListResponseDto employeesListResponseDto = new EmployeesListResponseDto();
     employeesListResponseDto.setStatus(Constants.STATUS_SUCCESS);
     EmployeeDto emp = new EmployeeDto();
@@ -108,7 +108,7 @@ public class DummyEmployeeApiClientTest {
 
   @Test
   void testGetAllEmployeesFailureStatusCodeServerError() throws JsonProcessingException {
-    String url = DummyEmployeeApiClient.BASE_URL + "/employees";
+    String url = DummyEmployeeRestApiClient.BASE_URL + "/employees";
     when(mockRestTemplate.getForEntity(eq(url), eq(String.class)))
         .thenReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal error"));
 
@@ -121,7 +121,7 @@ public class DummyEmployeeApiClientTest {
 
   @Test
   void testGetAllEmployeesFailureStatusCodeClientError() throws JsonProcessingException {
-    String url = DummyEmployeeApiClient.BASE_URL + "/employees";
+    String url = DummyEmployeeRestApiClient.BASE_URL + "/employees";
     when(mockRestTemplate.getForEntity(eq(url), eq(String.class)))
         .thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad Request"));
 
@@ -134,7 +134,7 @@ public class DummyEmployeeApiClientTest {
 
   @Test
   void testGetAllEmployeesFailureResponseBodyStatusNotSuccess() throws JsonProcessingException {
-    String url = DummyEmployeeApiClient.BASE_URL + "/employees";
+    String url = DummyEmployeeRestApiClient.BASE_URL + "/employees";
     EmployeesListResponseDto employeesListResponseDto = new EmployeesListResponseDto();
     employeesListResponseDto.setStatus(Constants.STATUS_FAILURE);
     String employeesListJson = objectMapper.writeValueAsString(employeesListResponseDto);
@@ -150,7 +150,7 @@ public class DummyEmployeeApiClientTest {
 
   @Test
   void testGetAllEmployeesFailureResponseBodyGarbled() throws JsonProcessingException {
-    String url = DummyEmployeeApiClient.BASE_URL + "/employees";
+    String url = DummyEmployeeRestApiClient.BASE_URL + "/employees";
     String employeesListJson = "{\"status\": \"success\", \"data\": [garbled_data}";
     when(mockRestTemplate.getForEntity(eq(url), eq(String.class)))
         .thenReturn(ResponseEntity.ok(employeesListJson));
@@ -165,7 +165,7 @@ public class DummyEmployeeApiClientTest {
   @Test
   @Disabled
   void testGetAllEmployeesSuccessAfterOneRetry() throws JsonProcessingException {
-    String url = DummyEmployeeApiClient.BASE_URL + "/employees";
+    String url = DummyEmployeeRestApiClient.BASE_URL + "/employees";
     EmployeesListResponseDto employeesListResponseDto = new EmployeesListResponseDto();
     employeesListResponseDto.setStatus(Constants.STATUS_SUCCESS);
     final EmployeeDto emp = new EmployeeDto();
@@ -193,7 +193,7 @@ public class DummyEmployeeApiClientTest {
 
   @Test
   void testGetEmployeeDetailsSuccess() throws JsonProcessingException {
-    String url = DummyEmployeeApiClient.BASE_URL + "/employee/" + EMP_ID1;
+    String url = DummyEmployeeRestApiClient.BASE_URL + "/employee/" + EMP_ID1;
     EmployeeDetailsResponseDto employeeDetailsResponseDto = new EmployeeDetailsResponseDto();
     employeeDetailsResponseDto.setStatus(Constants.STATUS_SUCCESS);
     EmployeeDto empDto = new EmployeeDto();
@@ -215,7 +215,7 @@ public class DummyEmployeeApiClientTest {
 
   @Test
   void testGetEmployeeDetailsFailureStatusCodeServerError() throws JsonProcessingException {
-    String url = DummyEmployeeApiClient.BASE_URL + "/employee/" + EMP_ID1;
+    String url = DummyEmployeeRestApiClient.BASE_URL + "/employee/" + EMP_ID1;
     when(mockRestTemplate.getForEntity(eq(url), eq(String.class)))
         .thenReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal error"));
 
@@ -228,7 +228,7 @@ public class DummyEmployeeApiClientTest {
 
   @Test
   void testGetEmployeeDetailsFailureStatusCodeClientError() throws JsonProcessingException {
-    String url = DummyEmployeeApiClient.BASE_URL + "/employee/" + EMP_ID1;
+    String url = DummyEmployeeRestApiClient.BASE_URL + "/employee/" + EMP_ID1;
     when(mockRestTemplate.getForEntity(eq(url), eq(String.class)))
         .thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad Request"));
 
@@ -241,7 +241,7 @@ public class DummyEmployeeApiClientTest {
 
   @Test
   void testGetEmployeeDetailsFailureResponseBodyStatusNotSuccess() throws JsonProcessingException {
-    String url = DummyEmployeeApiClient.BASE_URL + "/employee/" + EMP_ID1;
+    String url = DummyEmployeeRestApiClient.BASE_URL + "/employee/" + EMP_ID1;
     EmployeeDetailsResponseDto employeesListResponseDto = new EmployeeDetailsResponseDto();
     employeesListResponseDto.setStatus(Constants.STATUS_FAILURE);
     String employeesListJson = objectMapper.writeValueAsString(employeesListResponseDto);
@@ -257,7 +257,7 @@ public class DummyEmployeeApiClientTest {
 
   @Test
   void testGetEmployeeDetailsFailureResponseBodyGarbled() throws JsonProcessingException {
-    String url = DummyEmployeeApiClient.BASE_URL + "/employee/" + EMP_ID1;
+    String url = DummyEmployeeRestApiClient.BASE_URL + "/employee/" + EMP_ID1;
     String employeesDetailsJson = "{\"status\": \"success\", \"data\": [garbled_data}";
     when(mockRestTemplate.getForEntity(eq(url), eq(String.class)))
         .thenReturn(ResponseEntity.ok(employeesDetailsJson));
@@ -271,7 +271,7 @@ public class DummyEmployeeApiClientTest {
 
   @Test
   void testGetEmployeeDetailsFailureResponseBodyNull() throws JsonProcessingException {
-    String url = DummyEmployeeApiClient.BASE_URL + "/employee/" + EMP_ID1;
+    String url = DummyEmployeeRestApiClient.BASE_URL + "/employee/" + EMP_ID1;
     ObjectNode emptyData = objectMapper.createObjectNode();
     emptyData.put("status", Constants.STATUS_SUCCESS);
     emptyData.set("data", objectMapper.nullNode());
@@ -288,7 +288,7 @@ public class DummyEmployeeApiClientTest {
 
   @Test
   void testCreateEmployeeSuccess() throws JsonProcessingException {
-    String url = DummyEmployeeApiClient.BASE_URL + "/create";
+    String url = DummyEmployeeRestApiClient.BASE_URL + "/create";
     EmployeeDetailsResponseDto createEmployeeResponseDto = new EmployeeDetailsResponseDto();
     createEmployeeResponseDto.setStatus(Constants.STATUS_SUCCESS);
     Employee employee = new Employee();
@@ -317,7 +317,7 @@ public class DummyEmployeeApiClientTest {
 
   @Test
   void testCreateEmployeeFailureStatusCodeServerError() throws JsonProcessingException {
-    String url = DummyEmployeeApiClient.BASE_URL + "/create";
+    String url = DummyEmployeeRestApiClient.BASE_URL + "/create";
     when(mockRestTemplate.postForEntity(eq(url), any(), eq(String.class)))
         .thenReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal error"));
 
@@ -330,7 +330,7 @@ public class DummyEmployeeApiClientTest {
 
   @Test
   void testCreateEmployeeFailureStatusCodeClientError() throws JsonProcessingException {
-    String url = DummyEmployeeApiClient.BASE_URL + "/create";
+    String url = DummyEmployeeRestApiClient.BASE_URL + "/create";
     when(mockRestTemplate.postForEntity(eq(url), any(), eq(String.class)))
         .thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad Request"));
 
@@ -343,7 +343,7 @@ public class DummyEmployeeApiClientTest {
 
   @Test
   void testCreateEmployeeFailureResponseBodyStatusNotSuccess() throws JsonProcessingException {
-    String url = DummyEmployeeApiClient.BASE_URL + "/create";
+    String url = DummyEmployeeRestApiClient.BASE_URL + "/create";
     EmployeeDetailsResponseDto employeesListResponseDto = new EmployeeDetailsResponseDto();
     employeesListResponseDto.setStatus(Constants.STATUS_FAILURE);
     String employeesListJson = objectMapper.writeValueAsString(employeesListResponseDto);
@@ -359,7 +359,7 @@ public class DummyEmployeeApiClientTest {
 
   @Test
   void testCreateEmployeeFailureResponseBodyGarbled() throws JsonProcessingException {
-    String url = DummyEmployeeApiClient.BASE_URL + "/create";
+    String url = DummyEmployeeRestApiClient.BASE_URL + "/create";
     String employeesDetailsJson = "{\"status\": \"success\", \"data\": [garbled_data}";
     when(mockRestTemplate.postForEntity(eq(url), any(), eq(String.class)))
         .thenReturn(ResponseEntity.ok(employeesDetailsJson));
@@ -373,7 +373,7 @@ public class DummyEmployeeApiClientTest {
 
   @Test
   void testDeleteEmployee() throws JsonProcessingException {
-    String url = DummyEmployeeApiClient.BASE_URL + "/employee/" + EMP_ID1;
+    String url = DummyEmployeeRestApiClient.BASE_URL + "/employee/" + EMP_ID1;
     EmployeeDetailsResponseDto employeeDetailsResponseDto = new EmployeeDetailsResponseDto();
     employeeDetailsResponseDto.setStatus(Constants.STATUS_SUCCESS);
     EmployeeDto empDto = new EmployeeDto();
@@ -390,12 +390,12 @@ public class DummyEmployeeApiClientTest {
     dummyEmployeeApiClient.deleteEmployeeById(EMP_ID1);
 
     verify(mockRestTemplate, times(1))
-        .delete(DummyEmployeeApiClient.BASE_URL + "/delete/" + EMP_ID1);
+        .delete(DummyEmployeeRestApiClient.BASE_URL + "/delete/" + EMP_ID1);
   }
 
   @Test
   void testDeleteEmployeeNotFound() throws JsonProcessingException {
-    String url = DummyEmployeeApiClient.BASE_URL + "/employee/" + EMP_ID1;
+    String url = DummyEmployeeRestApiClient.BASE_URL + "/employee/" + EMP_ID1;
     ObjectNode emptyData = objectMapper.createObjectNode();
     emptyData.put("status", Constants.STATUS_SUCCESS);
     emptyData.set("data", objectMapper.nullNode());

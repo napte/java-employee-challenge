@@ -1,4 +1,4 @@
-package com.example.rqchallenge.clients.dummy.dto;
+package com.example.rqchallenge.clients.dummyrestapi.dto;
 
 public class EmployeeDetailsResponseDto extends BaseApiResponseDto {
   private EmployeeDto data;
