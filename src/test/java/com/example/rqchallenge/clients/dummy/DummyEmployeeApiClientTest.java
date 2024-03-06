@@ -2,14 +2,18 @@ package com.example.rqchallenge.clients.dummy;
 
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -97,7 +101,7 @@ public class DummyEmployeeApiClientTest {
     assertEquals(EMP_ID1, employee.getId());
     assertEquals(emp.getName(), employee.getName());
     assertEquals(emp.getAge(), employee.getAge());
-    assertEquals(emp.getSalary(), Float.valueOf(employee.getSalary()).intValue());
+    assertEquals(emp.getSalary(), employee.getSalary());
   }
 
   @Test
@@ -203,7 +207,7 @@ public class DummyEmployeeApiClientTest {
     Employee employee = dummyEmployeeApiClient.getEmployeeById(EMP_ID1);
     assertEquals(EMP_ID1, employee.getId());
     assertEquals(empDto.getName(), employee.getName());
-    assertEquals(empDto.getSalary(), Float.valueOf(employee.getSalary()).intValue());
+    assertEquals(empDto.getSalary(), employee.getSalary());
     assertEquals(empDto.getAge(), employee.getAge());
   }
 
@@ -258,6 +262,91 @@ public class DummyEmployeeApiClientTest {
 
     EmployeeServiceException exception = assertThrows(EmployeeServiceException.class,
         () -> dummyEmployeeApiClient.getEmployeeById(EMP_ID1));
+
+    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatus());
+    assertEquals(ErrorCodes.JSON_PROCESSING_ERROR.getCode(), exception.getCode());
+  }
+
+  @Test
+  void testCreateEmployeeSuccess() throws JsonProcessingException {
+    String url = DummyEmployeeApiClient.BASE_URL + "/create";
+    EmployeeDetailsResponseDto createEmployeeResponseDto = new EmployeeDetailsResponseDto();
+    createEmployeeResponseDto.setStatus(Constants.STATUS_SUCCESS);
+    Employee employee = new Employee();
+    employee.setName(EMP1_NAME);
+    employee.setAge(EMP1_AGE);
+    employee.setSalary(EMP1_SALARY);
+
+    EmployeeDto empDto = new EmployeeDto();
+    empDto.setId(new Random().nextLong());
+    empDto.setName(EMP1_NAME);
+    empDto.setAge(EMP1_AGE);
+    empDto.setSalary(EMP1_SALARY);
+    createEmployeeResponseDto.setData(empDto);
+    String createdEmployeesDetailsJson = objectMapper.writeValueAsString(createEmployeeResponseDto);
+    when(mockRestTemplate
+        .postForEntity(eq(url),
+            argThat((EmployeeDto empDtoArg) -> empDtoArg.getName().equals(employee.getName())),
+            eq(String.class))).thenReturn(ResponseEntity.ok(createdEmployeesDetailsJson));
+
+    Employee employeeAdded = dummyEmployeeApiClient.createEmployee(employee);
+    assertNotNull(employeeAdded.getId());
+    assertEquals(employee.getName(), employeeAdded.getName());
+    assertEquals(employee.getSalary(), employeeAdded.getSalary());
+    assertEquals(employee.getAge(), employeeAdded.getAge());
+  }
+
+  @Test
+  void testCreateEmployeeFailureStatusCodeServerError() throws JsonProcessingException {
+    String url = DummyEmployeeApiClient.BASE_URL + "/create";
+    when(mockRestTemplate.postForEntity(eq(url), any(), eq(String.class)))
+        .thenReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal error"));
+
+    EmployeeServiceException exception = assertThrows(EmployeeServiceException.class,
+        () -> dummyEmployeeApiClient.createEmployee(new Employee()));
+
+    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatus());
+    assertEquals(ErrorCodes.DUMMY_API_SERVER_ERROR.getCode(), exception.getCode());
+  }
+
+  @Test
+  void testCreateEmployeeFailureStatusCodeClientError() throws JsonProcessingException {
+    String url = DummyEmployeeApiClient.BASE_URL + "/create";
+    when(mockRestTemplate.postForEntity(eq(url), any(), eq(String.class)))
+        .thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad Request"));
+
+    EmployeeServiceException exception = assertThrows(EmployeeServiceException.class,
+        () -> dummyEmployeeApiClient.createEmployee(new Employee()));
+
+    assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    assertEquals(ErrorCodes.DUMMY_API_CLIENT_ERROR.getCode(), exception.getCode());
+  }
+
+  @Test
+  void testCreateEmployeeFailureResponseBodyStatusNotSuccess() throws JsonProcessingException {
+    String url = DummyEmployeeApiClient.BASE_URL + "/create";
+    EmployeesListResponseDto employeesListResponseDto = new EmployeesListResponseDto();
+    employeesListResponseDto.setStatus(Constants.STATUS_FAILURE);
+    String employeesListJson = objectMapper.writeValueAsString(employeesListResponseDto);
+    when(mockRestTemplate.postForEntity(eq(url), any(), eq(String.class)))
+        .thenReturn(ResponseEntity.ok(employeesListJson));
+
+    EmployeeServiceException exception = assertThrows(EmployeeServiceException.class,
+        () -> dummyEmployeeApiClient.createEmployee(new Employee()));
+
+    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatus());
+    assertEquals(ErrorCodes.DUMMY_API_SERVER_ERROR.getCode(), exception.getCode());
+  }
+
+  @Test
+  void testCreateEmployeeFailureResponseBodyGarbled() throws JsonProcessingException {
+    String url = DummyEmployeeApiClient.BASE_URL + "/create";
+    String employeesListJson = "{\"status\": \"success\", \"data\": [garbled_data}";
+    when(mockRestTemplate.postForEntity(eq(url), any(), eq(String.class)))
+        .thenReturn(ResponseEntity.ok(employeesListJson));
+
+    EmployeeServiceException exception = assertThrows(EmployeeServiceException.class,
+        () -> dummyEmployeeApiClient.createEmployee(new Employee()));
 
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatus());
     assertEquals(ErrorCodes.JSON_PROCESSING_ERROR.getCode(), exception.getCode());

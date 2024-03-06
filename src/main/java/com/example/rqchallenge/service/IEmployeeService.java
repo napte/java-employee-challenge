@@ -7,4 +7,6 @@ public interface IEmployeeService {
   List<Employee> getAllEmployees();
 
   Employee getEmployeeById(long id);
+
+  Employee createEmployee(Employee employeeInput);
 }

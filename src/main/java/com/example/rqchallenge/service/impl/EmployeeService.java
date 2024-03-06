@@ -22,4 +22,9 @@ public class EmployeeService implements IEmployeeService {
     return employeeApiClient.getEmployeeById(id);
   }
 
+  @Override
+  public Employee createEmployee(Employee employee) {
+    return employeeApiClient.createEmployee(employee);
+  }
+
 }

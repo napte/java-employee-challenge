@@ -5,7 +5,7 @@ import java.util.Objects;
 public class Employee {
   private long id;
   private String name;
-  private float salary;
+  private int salary;
   private int age;
 
   public long getId() {
@@ -24,11 +24,11 @@ public class Employee {
     this.name = name;
   }
 
-  public float getSalary() {
+  public int getSalary() {
     return salary;
   }
 
-  public void setSalary(float salary) {
+  public void setSalary(int salary) {
     this.salary = salary;
   }
 

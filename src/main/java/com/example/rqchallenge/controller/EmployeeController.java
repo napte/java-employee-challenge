@@ -43,9 +43,8 @@ public class EmployeeController implements IEmployeeController {
   }
 
   @Override
-  public ResponseEntity<Employee> createEmployee(Map<String, Object> employeeInput) {
-    // TODO Auto-generated method stub
-    return null;
+  public ResponseEntity<Employee> createEmployee(Employee employeeInput) {
+    return ResponseEntity.ok(employeeService.createEmployee(employeeInput));
   }
 
   @Override

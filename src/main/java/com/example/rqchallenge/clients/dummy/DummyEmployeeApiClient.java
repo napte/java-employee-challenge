@@ -121,4 +121,51 @@ public class DummyEmployeeApiClient {
     employee.setAge(employeeDto.getAge());
     return employee;
   }
+
+  public Employee createEmployee(Employee employee) {
+    logger.info("Create employee, name= {}", employee.getName());
+    ResponseEntity<String> createEmployeeResponse =
+        restTemplate.postForEntity(BASE_URL + "/create", getEmployeeDto(employee), String.class);
+
+    if (!createEmployeeResponse.getStatusCode().is2xxSuccessful()) {
+      logger.error("Failure in Dummy API, status {}", createEmployeeResponse.getStatusCode());
+      throw new EmployeeServiceException(createEmployeeResponse.getStatusCode(),
+          createEmployeeResponse.getStatusCode().is4xxClientError()
+              ? ErrorCodes.DUMMY_API_CLIENT_ERROR.getCode()
+              : ErrorCodes.DUMMY_API_SERVER_ERROR.getCode(),
+          createEmployeeResponse.getBody());
+    }
+
+    try {
+      EmployeeDetailsResponseDto employeesDetailsResponseDto = objectMapper
+          .readValue(createEmployeeResponse.getBody(), EmployeeDetailsResponseDto.class);
+
+      if (!employeesDetailsResponseDto.getStatus().equals(Constants.STATUS_SUCCESS)) {
+        logger
+            .error("Dummy API returned status {} - ", employeesDetailsResponseDto.getStatus(),
+                employeesDetailsResponseDto.getMessage());
+        throw new EmployeeServiceException(HttpStatus.INTERNAL_SERVER_ERROR,
+            ErrorCodes.DUMMY_API_SERVER_ERROR.getCode(), employeesDetailsResponseDto.getMessage());
+      }
+
+      EmployeeDto employeeDto = employeesDetailsResponseDto.getData();
+      logger
+          .info("Successfully added employee {}, id = {}", employeeDto.getName(),
+              employeeDto.getId());
+      return getEmployee(employeeDto);
+    } catch (JsonProcessingException e) {
+      logger.error("Error processing response from Dummy API", e);
+      throw new EmployeeServiceException(HttpStatus.INTERNAL_SERVER_ERROR,
+          ErrorCodes.JSON_PROCESSING_ERROR.getCode(), e.getMessage());
+    }
+  }
+
+  EmployeeDto getEmployeeDto(Employee employee) {
+    EmployeeDto employeeDto = new EmployeeDto();
+    employeeDto.setId(employee.getId());
+    employeeDto.setName(employee.getName());
+    employeeDto.setSalary(employee.getSalary());
+    employeeDto.setAge(employee.getAge());
+    return employeeDto;
+  }
 }
