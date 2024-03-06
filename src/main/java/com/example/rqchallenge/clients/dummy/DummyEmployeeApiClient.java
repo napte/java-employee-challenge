@@ -168,4 +168,10 @@ public class DummyEmployeeApiClient {
     employeeDto.setAge(employee.getAge());
     return employeeDto;
   }
+
+  public void deleteEmployeeById(long id) {
+    logger.info("Delete employee {}", id);
+    restTemplate.delete(BASE_URL + "/delete/" + id);
+    logger.info("Successfully deleted employee {}", id);
+  }
 }

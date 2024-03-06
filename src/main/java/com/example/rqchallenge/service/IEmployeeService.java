@@ -9,4 +9,6 @@ public interface IEmployeeService {
   Employee getEmployeeById(long id);
 
   Employee createEmployee(Employee employeeInput);
+
+  void deleteEmployeeById(long id);
 }

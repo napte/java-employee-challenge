@@ -35,6 +35,6 @@ public interface IEmployeeController {
   ResponseEntity<Employee> createEmployee(@RequestBody Employee employeeInput);
 
   @DeleteMapping("/{id}")
-  ResponseEntity<String> deleteEmployeeById(@PathVariable String id);
+  ResponseEntity<Void> deleteEmployeeById(@PathVariable String id);
 
 }

@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -350,5 +351,15 @@ public class DummyEmployeeApiClientTest {
 
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatus());
     assertEquals(ErrorCodes.JSON_PROCESSING_ERROR.getCode(), exception.getCode());
+  }
+
+  @Test
+  void testDeleteEmployee() {
+    doNothing().when(mockRestTemplate).delete(any());
+
+    dummyEmployeeApiClient.deleteEmployeeById(EMP_ID1);
+
+    verify(mockRestTemplate, times(1))
+        .delete(DummyEmployeeApiClient.BASE_URL + "/delete/" + EMP_ID1);
   }
 }

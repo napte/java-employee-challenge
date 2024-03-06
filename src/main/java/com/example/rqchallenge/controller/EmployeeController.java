@@ -2,7 +2,6 @@ package com.example.rqchallenge.controller;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,9 +47,9 @@ public class EmployeeController implements IEmployeeController {
   }
 
   @Override
-  public ResponseEntity<String> deleteEmployeeById(String id) {
-    // TODO Auto-generated method stub
-    return null;
+  public ResponseEntity<Void> deleteEmployeeById(String id) {
+    employeeService.deleteEmployeeById(Long.parseLong(id));
+    return ResponseEntity.noContent().build();
   }
 
 }

@@ -27,4 +27,9 @@ public class EmployeeService implements IEmployeeService {
     return employeeApiClient.createEmployee(employee);
   }
 
+  @Override
+  public void deleteEmployeeById(long id) {
+    employeeApiClient.deleteEmployeeById(id);
+  }
+
 }
