@@ -103,6 +103,15 @@ public class DummyEmployeeApiClient {
       }
 
       EmployeeDto employeeDto = employeesDetailsResponseDto.getData();
+
+      // XXX: The Dummy Rest API returns successful response with null data for invalid employee ID
+      if (employeeDto == null) {
+        String errorMsg = String.format("Employee with id %d not found", id);
+        logger.error(errorMsg);
+        throw new EmployeeServiceException(HttpStatus.NOT_FOUND,
+            ErrorCodes.EMPLOYEE_NOT_FOUND.getCode(), errorMsg);
+      }
+
       logger.info("Successfully fetched details for employee {}", employeeDto.getId());
       return getEmployee(employeeDto);
     } catch (JsonProcessingException e) {
@@ -170,6 +179,13 @@ public class DummyEmployeeApiClient {
 
   public void deleteEmployeeById(long id) {
     logger.info("Delete employee {}", id);
+
+    /*
+     * Since the delete API in Dummy Rest API does not fail for a non-existing ID, try fetching the
+     * employee details first by using the "GET By ID" call
+     */
+    getEmployeeById(id); // throws NOT_FOUND error if employee with ID not present
+
     restTemplate.delete(BASE_URL + "/delete/" + id);
     logger.info("Successfully deleted employee {}", id);
   }

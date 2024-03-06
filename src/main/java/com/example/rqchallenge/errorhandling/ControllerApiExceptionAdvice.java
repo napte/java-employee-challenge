@@ -1,5 +1,7 @@
 package com.example.rqchallenge.errorhandling;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -9,6 +11,7 @@ import org.springframework.web.client.RestClientException;
 
 @RestControllerAdvice(basePackages = "com.example.rqchallenge")
 public class ControllerApiExceptionAdvice {
+  private static final Logger logger = LoggerFactory.getLogger(ControllerApiExceptionAdvice.class);
 
   private static final String UNKNOWN_ERROR = "UNKNOWN_ERROR";
 
@@ -25,6 +28,8 @@ public class ControllerApiExceptionAdvice {
   @ExceptionHandler(HttpStatusCodeException.class)
   public ResponseEntity<ApiErrorResponse> handleHttpStatusCodeException(
       final HttpStatusCodeException ex) {
+    logger.error("Exception in Dummy API service call", ex);
+
     HttpStatusCodeException httpStatusCodeException = (HttpStatusCodeException) ex;
     ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
     apiErrorResponse.setErrorCode(httpStatusCodeException.getStatusCode().name());
@@ -35,6 +40,8 @@ public class ControllerApiExceptionAdvice {
 
   @ExceptionHandler(RestClientException.class)
   public ResponseEntity<ApiErrorResponse> handleRestClientException(final RestClientException ex) {
+    logger.error("Unknown exception from Dummy API service call", ex);
+
     ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
     apiErrorResponse.setErrorCode(UNKNOWN_ERROR);
     apiErrorResponse.setMessage(ex.getMessage());
@@ -44,6 +51,8 @@ public class ControllerApiExceptionAdvice {
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ApiErrorResponse> handleException(final Exception ex) {
+    logger.error("Unexpected error in processing request", ex);
+
     ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
     apiErrorResponse.setErrorCode(HttpStatus.INTERNAL_SERVER_ERROR.name());
     apiErrorResponse.setMessage(ex.getMessage());

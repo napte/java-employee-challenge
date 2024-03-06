@@ -38,6 +38,7 @@ import com.example.rqchallenge.errorhandling.ErrorCodes;
 import com.example.rqchallenge.model.Employee;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class DummyEmployeeApiClientTest {
   private static final long EMP_ID1 = 100;
@@ -241,7 +242,7 @@ public class DummyEmployeeApiClientTest {
   @Test
   void testGetEmployeeDetailsFailureResponseBodyStatusNotSuccess() throws JsonProcessingException {
     String url = DummyEmployeeApiClient.BASE_URL + "/employee/" + EMP_ID1;
-    EmployeesListResponseDto employeesListResponseDto = new EmployeesListResponseDto();
+    EmployeeDetailsResponseDto employeesListResponseDto = new EmployeeDetailsResponseDto();
     employeesListResponseDto.setStatus(Constants.STATUS_FAILURE);
     String employeesListJson = objectMapper.writeValueAsString(employeesListResponseDto);
     when(mockRestTemplate.getForEntity(eq(url), eq(String.class)))
@@ -257,15 +258,32 @@ public class DummyEmployeeApiClientTest {
   @Test
   void testGetEmployeeDetailsFailureResponseBodyGarbled() throws JsonProcessingException {
     String url = DummyEmployeeApiClient.BASE_URL + "/employee/" + EMP_ID1;
-    String employeesListJson = "{\"status\": \"success\", \"data\": [garbled_data}";
+    String employeesDetailsJson = "{\"status\": \"success\", \"data\": [garbled_data}";
     when(mockRestTemplate.getForEntity(eq(url), eq(String.class)))
-        .thenReturn(ResponseEntity.ok(employeesListJson));
+        .thenReturn(ResponseEntity.ok(employeesDetailsJson));
 
     EmployeeServiceException exception = assertThrows(EmployeeServiceException.class,
         () -> dummyEmployeeApiClient.getEmployeeById(EMP_ID1));
 
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatus());
     assertEquals(ErrorCodes.JSON_PROCESSING_ERROR.getCode(), exception.getCode());
+  }
+
+  @Test
+  void testGetEmployeeDetailsFailureResponseBodyNull() throws JsonProcessingException {
+    String url = DummyEmployeeApiClient.BASE_URL + "/employee/" + EMP_ID1;
+    ObjectNode emptyData = objectMapper.createObjectNode();
+    emptyData.put("status", Constants.STATUS_SUCCESS);
+    emptyData.set("data", objectMapper.nullNode());
+    String employeesEmptyDataJson = objectMapper.writeValueAsString(emptyData);
+    when(mockRestTemplate.getForEntity(eq(url), eq(String.class)))
+        .thenReturn(ResponseEntity.ok(employeesEmptyDataJson));
+
+    EmployeeServiceException exception = assertThrows(EmployeeServiceException.class,
+        () -> dummyEmployeeApiClient.getEmployeeById(EMP_ID1));
+
+    assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
+    assertEquals(ErrorCodes.EMPLOYEE_NOT_FOUND.getCode(), exception.getCode());
   }
 
   @Test
@@ -326,7 +344,7 @@ public class DummyEmployeeApiClientTest {
   @Test
   void testCreateEmployeeFailureResponseBodyStatusNotSuccess() throws JsonProcessingException {
     String url = DummyEmployeeApiClient.BASE_URL + "/create";
-    EmployeesListResponseDto employeesListResponseDto = new EmployeesListResponseDto();
+    EmployeeDetailsResponseDto employeesListResponseDto = new EmployeeDetailsResponseDto();
     employeesListResponseDto.setStatus(Constants.STATUS_FAILURE);
     String employeesListJson = objectMapper.writeValueAsString(employeesListResponseDto);
     when(mockRestTemplate.postForEntity(eq(url), any(), eq(String.class)))
@@ -342,9 +360,9 @@ public class DummyEmployeeApiClientTest {
   @Test
   void testCreateEmployeeFailureResponseBodyGarbled() throws JsonProcessingException {
     String url = DummyEmployeeApiClient.BASE_URL + "/create";
-    String employeesListJson = "{\"status\": \"success\", \"data\": [garbled_data}";
+    String employeesDetailsJson = "{\"status\": \"success\", \"data\": [garbled_data}";
     when(mockRestTemplate.postForEntity(eq(url), any(), eq(String.class)))
-        .thenReturn(ResponseEntity.ok(employeesListJson));
+        .thenReturn(ResponseEntity.ok(employeesDetailsJson));
 
     EmployeeServiceException exception = assertThrows(EmployeeServiceException.class,
         () -> dummyEmployeeApiClient.createEmployee(new Employee()));
@@ -354,12 +372,43 @@ public class DummyEmployeeApiClientTest {
   }
 
   @Test
-  void testDeleteEmployee() {
+  void testDeleteEmployee() throws JsonProcessingException {
+    String url = DummyEmployeeApiClient.BASE_URL + "/employee/" + EMP_ID1;
+    EmployeeDetailsResponseDto employeeDetailsResponseDto = new EmployeeDetailsResponseDto();
+    employeeDetailsResponseDto.setStatus(Constants.STATUS_SUCCESS);
+    EmployeeDto empDto = new EmployeeDto();
+    empDto.setId(EMP_ID1);
+    empDto.setName(EMP1_NAME);
+    empDto.setAge(EMP1_AGE);
+    empDto.setSalary(EMP1_SALARY);
+    employeeDetailsResponseDto.setData(empDto);
+    String employeesDetailsJson = objectMapper.writeValueAsString(employeeDetailsResponseDto);
+    when(mockRestTemplate.getForEntity(eq(url), eq(String.class)))
+        .thenReturn(ResponseEntity.ok(employeesDetailsJson));
     doNothing().when(mockRestTemplate).delete(any());
 
     dummyEmployeeApiClient.deleteEmployeeById(EMP_ID1);
 
     verify(mockRestTemplate, times(1))
         .delete(DummyEmployeeApiClient.BASE_URL + "/delete/" + EMP_ID1);
+  }
+
+  @Test
+  void testDeleteEmployeeNotFound() throws JsonProcessingException {
+    String url = DummyEmployeeApiClient.BASE_URL + "/employee/" + EMP_ID1;
+    ObjectNode emptyData = objectMapper.createObjectNode();
+    emptyData.put("status", Constants.STATUS_SUCCESS);
+    emptyData.set("data", objectMapper.nullNode());
+    String employeesEmptyDataJson = objectMapper.writeValueAsString(emptyData);
+    when(mockRestTemplate.getForEntity(eq(url), eq(String.class)))
+        .thenReturn(ResponseEntity.ok(employeesEmptyDataJson));
+
+    doNothing().when(mockRestTemplate).delete(any());
+
+    EmployeeServiceException exception = assertThrows(EmployeeServiceException.class,
+        () -> dummyEmployeeApiClient.deleteEmployeeById(EMP_ID1));
+
+    assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
+    assertEquals(ErrorCodes.EMPLOYEE_NOT_FOUND.getCode(), exception.getCode());
   }
 }
