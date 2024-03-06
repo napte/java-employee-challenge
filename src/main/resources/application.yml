@@ -1,0 +1,4 @@
+dummyRestApi:
+  client:
+    connectionTimeout: ${DUMMY_REST_API_CLIENT_CONNECTION_TIMEOUT_SEC:10}
+    readTimeout: ${DUMMY_REST_API_CLIENT_READ_TIMEOUT_SEC:30}

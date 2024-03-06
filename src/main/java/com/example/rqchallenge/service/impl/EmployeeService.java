@@ -49,7 +49,11 @@ public class EmployeeService implements IEmployeeService {
     List<Employee> employeesList = employeeApiClient.getAllEmployees();
     List<Employee> searchResult = employeesList
         .stream()
-        .filter(employee -> employee.getName().contains(searchString))
+        .filter(employee -> employee.getName().contains(searchString)) // Requirement about matching
+                                                                       // the case is not clear.
+                                                                       // For case-insensitive
+                                                                       // search, do
+                                                                       // employee.getName().toLowerCase().contains(searchString.toLowerCase())
         .collect(toList());
 
     logger.info("Found {} employees", searchResult.size());

@@ -10,8 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException.TooManyRequests;
 import org.springframework.web.client.HttpServerErrorException.GatewayTimeout;
+import org.springframework.web.client.HttpServerErrorException.ServiceUnavailable;
 import org.springframework.web.client.RestTemplate;
 import com.example.rqchallenge.clients.dummy.dto.Constants;
 import com.example.rqchallenge.clients.dummy.dto.EmployeeDetailsResponseDto;
@@ -34,7 +34,7 @@ public class DummyEmployeeApiClient {
   @Autowired
   private ObjectMapper objectMapper;
 
-  @Retryable(value = {TooManyRequests.class, GatewayTimeout.class},
+  @Retryable(value = {ServiceUnavailable.class, GatewayTimeout.class},
       backoff = @Backoff(delay = 1000, multiplier = 2))
   public List<Employee> getAllEmployees() {
     logger.info("Fetching employees...");
@@ -76,6 +76,8 @@ public class DummyEmployeeApiClient {
     }
   }
 
+  @Retryable(value = {ServiceUnavailable.class, GatewayTimeout.class},
+      backoff = @Backoff(delay = 1000, multiplier = 2))
   public Employee getEmployeeById(long id) {
     logger.info("Fetching details for employee {}", id);
     ResponseEntity<String> employeesListResponse =
@@ -130,6 +132,8 @@ public class DummyEmployeeApiClient {
     return employee;
   }
 
+  @Retryable(value = {ServiceUnavailable.class, GatewayTimeout.class},
+      backoff = @Backoff(delay = 1000, multiplier = 2))
   public Employee createEmployee(Employee employee) {
     logger.info("Create employee, name= {}", employee.getName());
     ResponseEntity<String> createEmployeeResponse =
@@ -177,6 +181,8 @@ public class DummyEmployeeApiClient {
     return employeeDto;
   }
 
+  @Retryable(value = {ServiceUnavailable.class, GatewayTimeout.class},
+      backoff = @Backoff(delay = 1000, multiplier = 2))
   public void deleteEmployeeById(long id) {
     logger.info("Delete employee {}", id);
 
