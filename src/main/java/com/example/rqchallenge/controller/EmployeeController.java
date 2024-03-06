@@ -27,8 +27,7 @@ public class EmployeeController implements IEmployeeController {
 
   @Override
   public ResponseEntity<Employee> getEmployeeById(String id) {
-    // TODO Auto-generated method stub
-    return null;
+    return ResponseEntity.ok(employeeService.getEmployeeById(Long.parseLong(id)));
   }
 
   @Override

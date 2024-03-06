@@ -14,6 +14,7 @@ import org.springframework.web.client.HttpClientErrorException.TooManyRequests;
 import org.springframework.web.client.HttpServerErrorException.GatewayTimeout;
 import org.springframework.web.client.RestTemplate;
 import com.example.rqchallenge.clients.dummy.dto.Constants;
+import com.example.rqchallenge.clients.dummy.dto.EmployeeDetailsResponseDto;
 import com.example.rqchallenge.clients.dummy.dto.EmployeeDto;
 import com.example.rqchallenge.clients.dummy.dto.EmployeesListResponseDto;
 import com.example.rqchallenge.errorhandling.EmployeeServiceException;
@@ -69,6 +70,42 @@ public class DummyEmployeeApiClient {
           .map(empDto -> getEmployee(empDto))
           .collect(toList());
       return result;
+    } catch (JsonProcessingException e) {
+      logger.error("Error processing response from Dummy API", e);
+      throw new EmployeeServiceException(HttpStatus.INTERNAL_SERVER_ERROR,
+          ErrorCodes.JSON_PROCESSING_ERROR.getCode(), e.getMessage());
+    }
+  }
+
+  public Employee getEmployeeById(long id) {
+    logger.info("Fetching details for employee {}", id);
+    ResponseEntity<String> employeesListResponse =
+        restTemplate.getForEntity(BASE_URL + "/employee/" + id, String.class);
+
+    if (!employeesListResponse.getStatusCode().is2xxSuccessful()) {
+      logger.error("Failure in Dummy API, status {}", employeesListResponse.getStatusCode());
+      throw new EmployeeServiceException(employeesListResponse.getStatusCode(),
+          employeesListResponse.getStatusCode().is4xxClientError()
+              ? ErrorCodes.DUMMY_API_CLIENT_ERROR.getCode()
+              : ErrorCodes.DUMMY_API_SERVER_ERROR.getCode(),
+          employeesListResponse.getBody());
+    }
+
+    try {
+      EmployeeDetailsResponseDto employeesDetailsResponseDto =
+          objectMapper.readValue(employeesListResponse.getBody(), EmployeeDetailsResponseDto.class);
+
+      if (!employeesDetailsResponseDto.getStatus().equals(Constants.STATUS_SUCCESS)) {
+        logger
+            .error("Dummy API returned status {} - ", employeesDetailsResponseDto.getStatus(),
+                employeesDetailsResponseDto.getMessage());
+        throw new EmployeeServiceException(HttpStatus.INTERNAL_SERVER_ERROR,
+            ErrorCodes.DUMMY_API_SERVER_ERROR.getCode(), employeesDetailsResponseDto.getMessage());
+      }
+
+      EmployeeDto employeeDto = employeesDetailsResponseDto.getData();
+      logger.info("Successfully fetched details for employee {}", employeeDto.getId());
+      return getEmployee(employeeDto);
     } catch (JsonProcessingException e) {
       logger.error("Error processing response from Dummy API", e);
       throw new EmployeeServiceException(HttpStatus.INTERNAL_SERVER_ERROR,

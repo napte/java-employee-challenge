@@ -17,4 +17,9 @@ public class EmployeeService implements IEmployeeService {
     return employeeApiClient.getAllEmployees();
   }
 
+  @Override
+  public Employee getEmployeeById(long id) {
+    return employeeApiClient.getEmployeeById(id);
+  }
+
 }

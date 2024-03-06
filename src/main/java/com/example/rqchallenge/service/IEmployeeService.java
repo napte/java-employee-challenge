@@ -5,4 +5,6 @@ import com.example.rqchallenge.model.Employee;
 
 public interface IEmployeeService {
   List<Employee> getAllEmployees();
+
+  Employee getEmployeeById(long id);
 }
