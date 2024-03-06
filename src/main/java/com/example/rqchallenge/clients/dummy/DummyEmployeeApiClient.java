@@ -26,29 +26,31 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class DummyEmployeeApiClient {
   private static final Logger logger = LoggerFactory.getLogger(DummyEmployeeApiClient.class);
 
+  static final String BASE_URL = "https://dummy.restapiexample.com/api/v1";
+
   @Autowired
   private RestTemplate restTemplate;
-
   @Autowired
   private ObjectMapper objectMapper;
 
   @Retryable(value = {TooManyRequests.class, GatewayTimeout.class},
       backoff = @Backoff(delay = 1000, multiplier = 2))
   public List<Employee> getAllEmployees() {
+
+    logger.info("Fetching employees...");
+    ResponseEntity<String> employeesListResponse =
+        restTemplate.getForEntity(BASE_URL + "/employees", String.class);
+
+    if (!employeesListResponse.getStatusCode().is2xxSuccessful()) {
+      logger.error("Failure in Dummy API, status {}", employeesListResponse.getStatusCode());
+      throw new EmployeeServiceException(employeesListResponse.getStatusCode(),
+          employeesListResponse.getStatusCode().is4xxClientError()
+              ? ErrorCodes.DUMMY_API_CLIENT_ERROR.getCode()
+              : ErrorCodes.DUMMY_API_SERVER_ERROR.getCode(),
+          employeesListResponse.getBody());
+    }
+
     try {
-      logger.info("Fetching employees..");
-      ResponseEntity<String> employeesListResponse = restTemplate
-          .getForEntity("https://dummy.restapiexample.com/api/v1/employees", String.class);
-
-      if (!employeesListResponse.getStatusCode().is2xxSuccessful()) {
-        logger.error("Failure in Dummy API, status {}", employeesListResponse.getStatusCode());
-        throw new EmployeeServiceException(employeesListResponse.getStatusCode(),
-            employeesListResponse.getStatusCode().is4xxClientError()
-                ? ErrorCodes.DUMMY_API_CLIENT_ERROR.getCode()
-                : ErrorCodes.DUMMY_API_SERVER_ERROR.getCode(),
-            employeesListResponse.getBody());
-      }
-
       EmployeesListResponseDto employeesListResponseDto =
           objectMapper.readValue(employeesListResponse.getBody(), EmployeesListResponseDto.class);
 
