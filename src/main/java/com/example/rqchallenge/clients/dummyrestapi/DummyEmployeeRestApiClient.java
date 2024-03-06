@@ -24,7 +24,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
-public class DummyEmployeeRestApiClient {
+public class DummyEmployeeRestApiClient implements IEmployeeDataSource {
   private static final Logger logger = LoggerFactory.getLogger(DummyEmployeeRestApiClient.class);
 
   static final String BASE_URL = "https://dummy.restapiexample.com/api/v1";
@@ -34,6 +34,7 @@ public class DummyEmployeeRestApiClient {
   @Autowired
   private ObjectMapper objectMapper;
 
+  @Override
   @Retryable(value = {ServiceUnavailable.class, GatewayTimeout.class},
       backoff = @Backoff(delay = 1000, multiplier = 2))
   public List<Employee> getAllEmployees() {
@@ -76,6 +77,7 @@ public class DummyEmployeeRestApiClient {
     }
   }
 
+  @Override
   @Retryable(value = {ServiceUnavailable.class, GatewayTimeout.class},
       backoff = @Backoff(delay = 1000, multiplier = 2))
   public Employee getEmployeeById(long id) {
@@ -132,6 +134,7 @@ public class DummyEmployeeRestApiClient {
     return employee;
   }
 
+  @Override
   @Retryable(value = {ServiceUnavailable.class, GatewayTimeout.class},
       backoff = @Backoff(delay = 1000, multiplier = 2))
   public Employee createEmployee(Employee employee) {
@@ -181,6 +184,7 @@ public class DummyEmployeeRestApiClient {
     return employeeDto;
   }
 
+  @Override
   @Retryable(value = {ServiceUnavailable.class, GatewayTimeout.class},
       backoff = @Backoff(delay = 1000, multiplier = 2))
   public void deleteEmployeeById(long id) {
