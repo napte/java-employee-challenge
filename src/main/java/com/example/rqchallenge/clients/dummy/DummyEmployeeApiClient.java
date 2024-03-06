@@ -37,7 +37,6 @@ public class DummyEmployeeApiClient {
   @Retryable(value = {TooManyRequests.class, GatewayTimeout.class},
       backoff = @Backoff(delay = 1000, multiplier = 2))
   public List<Employee> getAllEmployees() {
-
     logger.info("Fetching employees...");
     ResponseEntity<String> employeesListResponse =
         restTemplate.getForEntity(BASE_URL + "/employees", String.class);

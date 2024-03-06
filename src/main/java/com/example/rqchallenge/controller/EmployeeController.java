@@ -20,8 +20,7 @@ public class EmployeeController implements IEmployeeController {
 
   @Override
   public ResponseEntity<List<Employee>> getEmployeesByNameSearch(String searchString) {
-    // TODO Auto-generated method stub
-    return null;
+    return ResponseEntity.ok(employeeService.getEmployeesByName(searchString));
   }
 
   @Override
@@ -31,8 +30,7 @@ public class EmployeeController implements IEmployeeController {
 
   @Override
   public ResponseEntity<Integer> getHighestSalaryOfEmployees() {
-    // TODO Auto-generated method stub
-    return null;
+    return ResponseEntity.ok(employeeService.getHighestSalary());
   }
 
   @Override

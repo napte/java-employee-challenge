@@ -11,4 +11,8 @@ public interface IEmployeeService {
   Employee createEmployee(Employee employeeInput);
 
   void deleteEmployeeById(long id);
+
+  List<Employee> getEmployeesByName(String searchString);
+
+  Integer getHighestSalary();
 }
