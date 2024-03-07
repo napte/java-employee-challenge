@@ -1,8 +1,9 @@
 package com.example.rqchallenge.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -15,14 +16,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
-import com.example.rqchallenge.clients.dummyrestapi.DummyEmployeeRestApiClient;
+import com.example.rqchallenge.clients.dummyrestapi.IEmployeeDataSource;
 import com.example.rqchallenge.errorhandling.EmployeeServiceException;
 import com.example.rqchallenge.errorhandling.ErrorCodes;
 import com.example.rqchallenge.model.Employee;
 
 public class EmployeeServiceTest {
   @Mock
-  private DummyEmployeeRestApiClient mockDummyEmployeeApiClient;
+  private IEmployeeDataSource mockEmployeeDataSource;
 
   @InjectMocks
   private EmployeeService employeeService;
@@ -34,12 +35,12 @@ public class EmployeeServiceTest {
 
   @Test
   void testGetAllEmployees() {
-    when(mockDummyEmployeeApiClient.getAllEmployees())
+    when(mockEmployeeDataSource.getAllEmployees())
         .thenReturn(Collections.singletonList(new Employee()));
 
     List<Employee> employees = employeeService.getAllEmployees();
 
-    verify(mockDummyEmployeeApiClient, times(1)).getAllEmployees();
+    verify(mockEmployeeDataSource, times(1)).getAllEmployees();
     assertEquals(1, employees.size());
   }
 
@@ -48,11 +49,11 @@ public class EmployeeServiceTest {
     long empId = 123L;
 
     Employee employee = new Employee();
-    when(mockDummyEmployeeApiClient.getEmployeeById(empId)).thenReturn(employee);
+    when(mockEmployeeDataSource.getEmployeeById(empId)).thenReturn(employee);
 
     Employee employeeResult = employeeService.getEmployeeById(empId);
 
-    verify(mockDummyEmployeeApiClient, times(1)).getEmployeeById(eq(empId));
+    verify(mockEmployeeDataSource, times(1)).getEmployeeById(eq(empId));
     assertEquals(employee, employeeResult);
   }
 
@@ -61,17 +62,17 @@ public class EmployeeServiceTest {
     Employee employee = new Employee();
     employeeService.createEmployee(employee);
 
-    verify(mockDummyEmployeeApiClient, times(1)).createEmployee(eq(employee));
+    verify(mockEmployeeDataSource, times(1)).createEmployee(eq(employee));
   }
 
   @Test
   void testDeleteEmployeeById() {
     long empId = 123L;
-    doNothing().when(mockDummyEmployeeApiClient).deleteEmployeeById(empId);
+    doNothing().when(mockEmployeeDataSource).deleteEmployeeById(empId);
 
     employeeService.deleteEmployeeById(empId);
 
-    verify(mockDummyEmployeeApiClient, times(1)).deleteEmployeeById(eq(empId));
+    verify(mockEmployeeDataSource, times(1)).deleteEmployeeById(eq(empId));
   }
 
   @Test
@@ -91,7 +92,7 @@ public class EmployeeServiceTest {
     Employee sean = new Employee();
     sean.setName("Sean Jones");
     List<Employee> employees = List.of(jon, jonny, janardan, joanna, jonathan, sean);
-    when(mockDummyEmployeeApiClient.getAllEmployees()).thenReturn(employees);
+    when(mockEmployeeDataSource.getAllEmployees()).thenReturn(employees);
 
     List<Employee> searchResult = employeeService.getEmployeesByName(searchString);
     assertEquals(4, searchResult.size());
@@ -116,7 +117,7 @@ public class EmployeeServiceTest {
     joanna.setSalary(20000);
 
     List<Employee> employees = List.of(jon, jonny, janardan, joanna);
-    when(mockDummyEmployeeApiClient.getAllEmployees()).thenReturn(employees);
+    when(mockEmployeeDataSource.getAllEmployees()).thenReturn(employees);
 
     int highestSalary = employeeService.getHighestSalary();
     assertEquals(25000, highestSalary);
@@ -124,7 +125,7 @@ public class EmployeeServiceTest {
 
   @Test
   void testGetHighestSalaryEmployeeListEmpty() {
-    when(mockDummyEmployeeApiClient.getAllEmployees()).thenReturn(Collections.emptyList());
+    when(mockEmployeeDataSource.getAllEmployees()).thenReturn(Collections.emptyList());
 
     EmployeeServiceException exception = Assertions
         .assertThrows(EmployeeServiceException.class, () -> employeeService.getHighestSalary());
@@ -151,7 +152,7 @@ public class EmployeeServiceTest {
     joanna.setSalary(28000);
 
     List<Employee> employees = List.of(jon, jonny, janardan, joanna);
-    when(mockDummyEmployeeApiClient.getAllEmployees()).thenReturn(employees);
+    when(mockEmployeeDataSource.getAllEmployees()).thenReturn(employees);
 
     List<Employee> topNEmployees = employeeService.getTopNBySalary(2);
     assertEquals(2, topNEmployees.size());
@@ -178,11 +179,19 @@ public class EmployeeServiceTest {
     joanna.setSalary(28000);
 
     List<Employee> employees = List.of(jon, jonny, janardan, joanna);
-    when(mockDummyEmployeeApiClient.getAllEmployees()).thenReturn(employees);
+    when(mockEmployeeDataSource.getAllEmployees()).thenReturn(employees);
 
     List<Employee> topNEmployees = employeeService.getTopNBySalary(10);
     assertEquals(4, topNEmployees.size());
     assertEquals("Janardan", topNEmployees.get(0).getName());
+  }
+
+  @Test
+  void testGetTopNBySalaryEmptyEmployeeList() {
+    when(mockEmployeeDataSource.getAllEmployees()).thenReturn(Collections.emptyList());
+
+    List<Employee> topNEmployees = employeeService.getTopNBySalary(10);
+    assertTrue(topNEmployees.isEmpty());
   }
 
 }

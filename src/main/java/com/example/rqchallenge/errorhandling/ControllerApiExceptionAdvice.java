@@ -11,6 +11,10 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.HttpClientErrorException.TooManyRequests;
 
+/**
+ * A <code>RestControllerAdvice</code> for exception handling.
+ *
+ */
 @RestControllerAdvice(basePackages = "com.example.rqchallenge")
 public class ControllerApiExceptionAdvice {
   private static final String RETRY_AFTER_HEADER = "retry-after";

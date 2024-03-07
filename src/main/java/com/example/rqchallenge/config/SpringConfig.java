@@ -15,10 +15,10 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 @EnableRetry
 public class SpringConfig {
 
-  @Value("${dummyRestApi.client.connectionTimeout}")
+  @Value("${restTemplate.connectionTimeout}")
   private long connectionTimeout;
 
-  @Value("${dummyRestApi.client.readTimeout}")
+  @Value("${restTemplate.readTimeout}")
   private long readTimeout;
 
   @Bean

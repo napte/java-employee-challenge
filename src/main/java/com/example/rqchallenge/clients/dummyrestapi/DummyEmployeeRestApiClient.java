@@ -23,6 +23,10 @@ import com.example.rqchallenge.model.Employee;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * A data source for employees that fetches information from the dummy rest API.<br>
+ * @see https://dummy.restapiexample.com/
+ */
 @Component
 public class DummyEmployeeRestApiClient implements IEmployeeDataSource {
   private static final Logger logger = LoggerFactory.getLogger(DummyEmployeeRestApiClient.class);
