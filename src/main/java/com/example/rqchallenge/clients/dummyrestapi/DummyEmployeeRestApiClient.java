@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * A data source for employees that fetches information from the dummy rest API.<br>
+ * 
  * @see https://dummy.restapiexample.com/
  */
 @Component
@@ -195,11 +196,13 @@ public class DummyEmployeeRestApiClient implements IEmployeeDataSource {
   public void deleteEmployeeById(long id) {
     logger.info("Delete employee {}", id);
 
-    /*
-     * Since the delete API in Dummy Rest API does not fail for a non-existing ID, try fetching the
-     * employee details first by using the "GET By ID" call
+    // XXX: Not invoking getEmployeeById() since Dummy Rest API returns 429 Too Many Requests error
+    /**
+     * 
+     * //Dummy delete API does not fail for a non-existing ID, try fetching employee details first
+     * 
+     * getEmployeeById(id); // throws NOT_FOUND error if employee with ID not present
      */
-    getEmployeeById(id); // throws NOT_FOUND error if employee with ID not present
 
     restTemplate.delete(BASE_URL + "/delete/" + id);
     logger.info("Successfully deleted employee {}", id);
