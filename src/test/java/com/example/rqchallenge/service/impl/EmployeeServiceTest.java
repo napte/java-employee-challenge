@@ -16,7 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
-import com.example.rqchallenge.clients.dummyrestapi.IEmployeeDataSource;
+import com.example.rqchallenge.dao.IEmployeeDataSource;
 import com.example.rqchallenge.errorhandling.EmployeeServiceException;
 import com.example.rqchallenge.errorhandling.ErrorCodes;
 import com.example.rqchallenge.model.Employee;
