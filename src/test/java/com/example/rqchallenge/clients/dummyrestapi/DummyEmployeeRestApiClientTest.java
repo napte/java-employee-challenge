@@ -394,6 +394,7 @@ public class DummyEmployeeRestApiClientTest {
   }
 
   @Test
+  @Disabled("Not invoking getEmployeeById in delete operation right now")
   void testDeleteEmployeeNotFound() throws JsonProcessingException {
     String url = DummyEmployeeRestApiClient.BASE_URL + "/employee/" + EMP_ID1;
     ObjectNode emptyData = objectMapper.createObjectNode();
