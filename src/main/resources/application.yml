@@ -1,0 +1,3 @@
+restTemplate:
+  connectionTimeout: ${REST_TEMPLATE_CONNECTION_TIMEOUT_SEC:10}
+  readTimeout: ${REST_TEMPLATE_READ_TIMEOUT_SEC:30}
